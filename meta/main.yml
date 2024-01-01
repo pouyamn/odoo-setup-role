@@ -1,0 +1,22 @@
+galaxy_info:
+  author: Pouya MN
+  description: Install odoo on a bare server, with nginx and letsencrypt 
+  company: Kenevist
+
+  license: GPL-3.0-only
+
+  min_ansible_version: 2.1
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - 22.04
+
+  galaxy_tags: 
+  - odoo
+
+dependencies: 
+- { role: geerlingguy.nginx }
+- { role: geerlingguy.pip }
+- { role: geerlingguy.git }
+

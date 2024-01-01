@@ -1,0 +1,26 @@
+#
+# Odoo service definition
+# Included from the checkout task
+#
+[Unit]
+Description=Odoo
+
+[Service]
+Type=simple
+User={{ odoo_user }}
+LimitNOFILE=16384
+ExecStart=/home/odoo/bin/openerp-{{ branch }}
+ExecStartPost=/bin/sh -c "/bin/echo $MAINPID > /home/odoo/log/openerp-{{ branch }}.pid"
+ExecStopPost=/bin/sh -c "/bin/rm /home/odoo/log/openerp-{{ branch }}.pid"
+TimeoutStopSec=5
+KillMode=mixed
+Restart=on-failure
+{% if ansible_distribution_version|float >= 20.04 %}
+{% include "common/service-options.conf.j2" %}
+{% set extra_rwpaths = "" %}
+{% if "apps" in group_names %}{% set extra_rwpaths = extra_rwpaths + " /home/odoo/repo_cache" %}{% endif %}
+ReadWritePaths=/home/odoo/.local/share/Odoo /home/odoo/filestore /home/odoo/log /home/odoo/tmp{{ extra_rwpaths }}
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

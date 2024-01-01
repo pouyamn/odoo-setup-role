@@ -1,0 +1,24 @@
+---
+
+# system user for running odoo
+odoo_user: "odoo"
+
+# # Postgres user for connecting odoo 
+# pg_user: "odoo"
+# pg_password: "odoo"
+
+# install paths
+src_path: "/home/{{ odoo_user }}/src"
+odoo_path: "{{ src_path }}/odoo"
+odoo_bin: "{{ odoo_path }}/odoo-bin"
+themes_path: "{{ src_path }}/themes"
+# enterprise_path: ""
+user_path: "{{ src_path }}/custom"
+odoo_repo: "https://github.com/odoo/odoo.git"
+themes_repo: "https://github.com/odoo/design-themes.git"
+# enterprise_repo: ""
+
+
+wkhtml_version: 0.12.5
+
+

@@ -1,0 +1,19 @@
+---
+- include_tasks: pre_install.yml
+
+- name: Setup Nginx
+  include_role:
+    name: geerlingguy.nginx
+  vars:
+    nginx_vhosts_filename: citron.conf
+    nginx_remove_default_vhost: true
+    nginx_vhosts:
+      - listen: 80
+        index: index.html
+        root: "/usr/share/nginx/html"
+        extra_parameters: |
+          location / {
+            try_files $uri $uri/ /index.html;
+          }
+  tags:
+    - nginx

@@ -1,0 +1,56 @@
+---
+- name: install postgresql
+  include_role:
+    name: geerlingguy.postgres
+    vars:
+      postgresql_python_library: python3-psycopg2
+      postgresql_users:
+        - name: {{ odoo_user }}
+        # - name: {{ pg_user }}
+        #   password: {{ pg_password }}
+
+- name: install pip
+  include_role: geerlingguy.pip
+
+- name: install git
+  include_role: geerlingguy.git
+
+- name: Odoo user
+  user:
+    name: "{{ odoo_user }}"
+    uid: 10000
+    shell: /bin/bash
+
+- name: add GeoIP ppa
+  apt_repository:
+      repo: ppa:maxmind/ppa
+      state: present
+
+- name: remove packages that are stupid to have on a server
+  apt:
+    name: 
+      - snapd
+      - whoopsie
+    purge: yes
+    state: absent
+
+- name: load packages listen
+  include_vars: packages.yml
+
+- name: install packages
+  apt:
+    name: "{{ query('flattened', ['{{ deb_packages }}']) }}"
+    state: present
+    update_cache: yes
+
+- name: npm packages
+  npm:
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    global: yes
+  with_items:
+    "{{ npm_packages }}"
+  
+- name: geoipupdate
+  command: geoipupdate
+
