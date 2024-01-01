@@ -5,18 +5,13 @@ galaxy_info:
 
   license: GPL-3.0-only
 
-  min_ansible_version: 2.1
+  min_ansible_version: "2.1"
 
   platforms:
   - name: Ubuntu
     versions:
-    - 22.04
+    - jammy
 
   galaxy_tags: 
   - odoo
-
-dependencies: 
-- { role: geerlingguy.nginx }
-- { role: geerlingguy.pip }
-- { role: geerlingguy.git }
 

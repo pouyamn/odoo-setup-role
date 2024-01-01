@@ -1,19 +1,19 @@
 ---
-- name: install postgresql
-  include_role:
-    name: geerlingguy.postgres
-    vars:
-      postgresql_python_library: python3-psycopg2
-      postgresql_users:
-        - name: {{ odoo_user }}
-        # - name: {{ pg_user }}
-        #   password: {{ pg_password }}
+# - name: install postgresql
+#   include_role:
+#     name: geerlingguy.postgres
+#     vars:
+#       postgresql_python_library: python3-psycopg2
+#       postgresql_users:
+#         - name: {{ odoo_user }}
+#         # - name: {{ pg_user }}
+#         #   password: {{ pg_password }}
 
-- name: install pip
-  include_role: geerlingguy.pip
+# - name: install pip
+#   include_role: geerlingguy.pip
 
-- name: install git
-  include_role: geerlingguy.git
+# - name: install git
+#   include_role: geerlingguy.git
 
 - name: Odoo user
   user:
