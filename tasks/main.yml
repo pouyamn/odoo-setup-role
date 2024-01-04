@@ -1,19 +1,74 @@
 ---
-- include_tasks: pre_install.yml
+- ansible.builtin.include_tasks: pre_install.yml
+
+- name: Ensure source folder exists
+  ansible.builtin.file:
+    path: "{{ src_path }}"
+    state: directory
+
+- name: Clone odoo repository
+  ansible.builtin.git:
+    dest: "{{ odoo_path }}"
+    repo: "{{ odoo_repo }}"
+    single_branch: true
+    version: "{{ odoo_version }}"
+
+- name: Clone themes repository
+  ansible.builtin.git:
+    dest: "{{ odoo_path }}"
+    repo: "{{ odoo_repo }}"
+    single_branch: true
+    version: "{{ odoo_version }}"
+
+- name: Check if wkhtmltopdf is installed
+  ansible.builtin.stat:
+    path: "/usr/bin/wkhtmltopdf"
+  register: wkhtml_status
+
+- name: Install wkhtmltopdf
+  when: wkhtml_status.stat.exists == False
+  block:
+    - name: get wkhtmltopdf deb file
+      ansible.builtin.get_url:
+        url: "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb"
+        dest: "/tmp/wkhtmltox_0.12.6.1-2.deb"
+
+    - name: install deb file
+      ansible.builtin.apt:
+        deb: "/tmp/wkhtmltox_0.12.6.1-2.deb"
+
+    - name: Clean up
+      ansible.builtin.file:
+        path: "/tmp/wkhtmltox_0.12.6.1-2.deb"
+        state: absent
+
+  
 
 - name: Setup Nginx
-  include_role:
+  ansible.builtin.include_role:
     name: geerlingguy.nginx
   vars:
-    nginx_vhosts_filename: citron.conf
     nginx_remove_default_vhost: true
+    nginx_upstreams:
+      - name: odoo
+        servers:
+        - "127.0.0.1:{{ odoo_port }}" 
+      - name: odoochat
+        servers:
+          - "127.0.0.1:{{ odoo_chat_port }}"
+
     nginx_vhosts:
       - listen: 80
-        index: index.html
-        root: "/usr/share/nginx/html"
+        server_name: "{{ website_domain }}"
+        server_name_redirect: "www.{{ website_domain }}"
+        rewrite ^(.*) https://$host$1 permanent;
+        filename: "{{ website_domain | replace('.','_')}}.conf"
         extra_parameters: |
           location / {
-            try_files $uri $uri/ /index.html;
+            
+          }
+          location /longpolling {
+            
           }
   tags:
     - nginx

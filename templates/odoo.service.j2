@@ -9,18 +9,31 @@ Description=Odoo
 Type=simple
 User={{ odoo_user }}
 LimitNOFILE=16384
-ExecStart=/home/odoo/bin/openerp-{{ branch }}
-ExecStartPost=/bin/sh -c "/bin/echo $MAINPID > /home/odoo/log/openerp-{{ branch }}.pid"
-ExecStopPost=/bin/sh -c "/bin/rm /home/odoo/log/openerp-{{ branch }}.pid"
+ExecStart={{ odoo_bin }}
 TimeoutStopSec=5
 KillMode=mixed
 Restart=on-failure
-{% if ansible_distribution_version|float >= 20.04 %}
-{% include "common/service-options.conf.j2" %}
-{% set extra_rwpaths = "" %}
-{% if "apps" in group_names %}{% set extra_rwpaths = extra_rwpaths + " /home/odoo/repo_cache" %}{% endif %}
-ReadWritePaths=/home/odoo/.local/share/Odoo /home/odoo/filestore /home/odoo/log /home/odoo/tmp{{ extra_rwpaths }}
-{% endif %}
+
+#CapabilityBoundingSet=~CAP_SYS_ADMIN
+KeyringMode=private
+NoNewPrivileges=true
+#IPAddressDeny=link-local
+#PrivateDevices=true
+#PrivateTmp=true
+#ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+#RemoveIPC=true
+#RestrictNamespaces=true
+#RestrictSUIDSGID=true
+RestrictRealtime=true
+ProtectClock=true
+#ProtectHostname=true
+ProtectKernelLogs=true
+SystemCallFilter=@system-service
+
+ProtectHome=read-only
+ReadWritePaths=/home/{{ odoo_user }}/filestore /home/{{ odoo_user }}/log /tmp
 
 [Install]
 WantedBy=multi-user.target

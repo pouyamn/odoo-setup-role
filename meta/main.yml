@@ -1,6 +1,6 @@
 galaxy_info:
   author: Pouya MN
-  description: Install odoo on a bare server, with nginx and letsencrypt 
+  description: Install odoo on a bare server, with nginx and let's encrypt 
   company: Kenevist
 
   license: GPL-3.0-only
@@ -14,4 +14,3 @@ galaxy_info:
 
   galaxy_tags: 
   - odoo
-

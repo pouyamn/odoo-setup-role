@@ -1,56 +1,55 @@
 ---
-# - name: install postgresql
-#   include_role:
-#     name: geerlingguy.postgres
-#     vars:
-#       postgresql_python_library: python3-psycopg2
-#       postgresql_users:
-#         - name: {{ odoo_user }}
-#         # - name: {{ pg_user }}
-#         #   password: {{ pg_password }}
-
-# - name: install pip
-#   include_role: geerlingguy.pip
-
-# - name: install git
-#   include_role: geerlingguy.git
 
 - name: Odoo user
-  user:
+  ansible.builtin.user:
     name: "{{ odoo_user }}"
     uid: 10000
     shell: /bin/bash
 
-- name: add GeoIP ppa
-  apt_repository:
-      repo: ppa:maxmind/ppa
+- name: Add GeoIP ppa
+  ansible.builtin.apt_repository:
+      repo: "ppa:maxmind/ppa"
       state: present
 
-- name: remove packages that are stupid to have on a server
-  apt:
-    name: 
+- name: Remove packages that are stupid to have on a server
+  ansible.builtin.apt:
+    name:
       - snapd
       - whoopsie
-    purge: yes
+    purge: true
     state: absent
 
-- name: load packages listen
-  include_vars: packages.yml
+- name: Load packages listen
+  ansible.builtin.include_vars: packages.yml
 
-- name: install packages
-  apt:
+- name: Install packages
+  ansible.builtin.package:
     name: "{{ query('flattened', ['{{ deb_packages }}']) }}"
     state: present
     update_cache: yes
 
-- name: npm packages
-  npm:
+- name: Install npm packages
+  ansible.builtin.npm:
     name: "{{ item.name }}"
     version: "{{ item.version }}"
-    global: yes
+    global: true
   with_items:
     "{{ npm_packages }}"
-  
-- name: geoipupdate
-  command: geoipupdate
+
+- name: Get geoIP database
+  block:
+    - name: Get geoIP database
+      ansible.builtin.get_url:
+        url: "https://git.io/GeoLite2-City.mmdb"
+        dest: "/usr/share/GeoIP/"
+        mode: '0644'
+      become: true
+  rescue:
+    - name: Get geoIP database from alternative url
+      ansible.builtin.get_url:
+        url: "https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb"
+        dest: "/usr/share/GeoIP/"
+        mode: '0644'
+      become: true
+
 
